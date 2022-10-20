@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script defer="defer" src="./Pocket Aliens_files/main.js"></script>
+</head>
+
+<body style="background-color: black;">
+
+    <h1 id="account" style="color: white;"></h1>
+    <div style="visibility: hidden;">
+        <button class="button" id="login" onclick="Alien.login()"></button>
+        <button class="button" id="mine" onclick="Alien.doMine()"></button>
+        <button class="button" id="claim" onclick="Alien.doClaim()"></button>        
+    </div>    
+
+    <script>
+
+        window.onload = () => {
+
+            const params = new URLSearchParams(window.location.search);
+
+            document.getElementById('account').innerHTML = params.get('ac');
+
+            setTimeout(() => {
+                document.getElementById('login').click();
+            }, 2000);
+
+            document.querySelector("body").addEventListener("logged", (event) => {
+                setTimeout(() => {
+                    document.getElementById('mine').click();
+                }, 1000);
+            });
+
+            document.querySelector("body").addEventListener("claim", (event) => {
+                setTimeout(() => {
+                    document.getElementById('claim').click();
+                }, 2000);
+            });
+        }
+    
+    </script>
+
+</body>
+
+</html>

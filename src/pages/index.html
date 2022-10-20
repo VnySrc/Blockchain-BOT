@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<!-- saved from url=(0028)https://play.alienworlds.io/ -->
+<html lang="en-us">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://play.alienworlds.io/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="https://play.alienworlds.io/manifest.json">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Alien Worlds</title>
+  <link rel="shortcut icon" href="https://play.alienworlds.io/TemplateData/favicon.ico">
+  <link rel="stylesheet" href="./Alien Worlds_files/style.css">
+  <script src="./Alien Worlds_files/UnityProgress.js.download" type="text/javascript"></script>
+  <script src="./Alien Worlds_files/waxjs.js.download" type="text/javascript"></script>
+  <style>
+    body {
+      margin: 0px;
+      top: 50%;
+      left: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      position: fixed;
+      overflow: hidden;
+      background-color: black;  
+    }
+
+    .webgl-content {
+      visibility: hidden;
+    }
+
+    #unityContainer {
+      visibility: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="webgl-content">
+    
+    <!-- <div id="unityContainer"style="width: 1920px; height: 937px; padding: 0px; margin: 0px; border: 0px; position: relative; background: url(&quot;Build/Build.jpg&quot;) center center / cover;"></div> -->
+    <div id="unityContainer">
+
+      <canvas id="#canvas" width="1920" height="937" style="width: 100%; height: 100%; cursor: default;visibility: hidden;z-index: 999;"></canvas>
+      <div class="logo " style="display: none;"></div>
+      <div class="progress Dark" style="display: none;">
+        <div class="empty" style="width: 0%;"></div>
+        <div class="full" style="width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+  <script defer="" src="./Alien Worlds_files/beacon.min.js.download"
+    data-cf-beacon="{&quot;rayId&quot;:&quot;65d639485c976050&quot;,&quot;token&quot;:&quot;a08d3458e138470899eb2c0f1e77108a&quot;,&quot;version&quot;:&quot;2021.5.2&quot;,&quot;si&quot;:10}"></script>
+
+  <script src="./Alien Worlds_files/UnityLoader.js.download" type="text/javascript"></script>
+  <script src="./Alien Worlds_files/bundle.js.download" type="text/javascript"></script>
+  <script src="./Alien Worlds_files/hashes.js.download" type="text/javascript"></script>
+  <script src="./Alien Worlds_files/message_handler.js.download" type="text/javascript"></script>
+  <script type="text/javascript">
+
+    // Initial screen setup
+    unityContainer.style.height = window.innerHeight + "px";
+    unityInstance = UnityLoader.instantiate(
+      "unityContainer",
+      "Build/Build.json",
+      { onProgress: UnityProgress }
+    );
+
+    window.onload = async () => {
+
+      alert('AW_STARTED');
+
+      let userAccount;
+      let account;
+
+      //////////////////////////////
+      // login
+      //////////////////////////////
+      try {
+
+        //await checkCondition(_ => gameLoaded == true);
+
+        userAccount = await wax.login(); // '5dwd.wam';
+        account = userAccount;
+        unityInstance.SendMessage('Controller', 'Server_Response_LoginData', userAccount);
+
+      } catch (error) {
+        alert('AW_INSTABLE');
+        alert('AW_MINE_DELAY_REQUEUE:' + 600000);
+        return;
+      }
+
+      var logMessages = [];
+
+      const play = async () => {
+
+        let delay = millis => new Promise((resolve, reject) => {setTimeout(_ => resolve(), millis)});
+
+        //////////////////////////////
+        // login
+        //////////////////////////////
+
+        await delay(10000);
+
+        let firstMine = true;
+        let previousMineDone = false;
+        let minedelay = 1;
+
+        do {
+
+          minedelay = await getMineDelay(account);
+          unityInstance.SendMessage('Controller', 'Server_Response_GetMineDelay', minedelay.toString());
+
+          if(isNaN(minedelay)){
+            alert('AW_INSTABLE');
+            alert('AW_MINE_DELAY_REQUEUE:' + 600000);
+            return;
+          }
+
+          if(minedelay > 60000){
+            alert('AW_MINE_DELAY_REQUEUE:' + minedelay);
+            return;
+          }
+
+          await delay(minedelay);
+        }
+        while (minedelay !== 0);
+
+        console.log('just mine it!');
+
+        let balance = await getBalance(account, wax.api.rpc);
+
+        alert('AW_BALANCE: ' + balance);
+
+        let mine_work = await background_mine(account);
+
+        unityInstance.SendMessage('Controller', 'Server_Response_Mine', JSON.stringify(mine_work));
+
+        try {
+
+          alert(mine_work.account + ' Pushing mine results...');
+
+          let mine_data = { miner: mine_work.account, nonce: mine_work.rand_str };
+
+          alert('AW_MESSAGE: Claim Now');
+
+          let actions = [{
+            account: mining_account,
+            name: 'mine',
+            authorization: [{
+              actor: mine_work.account,
+              permission: 'active',
+            }],
+            data: mine_data,
+          }];
+
+          let result = await wax.api.transact({ actions }, { blocksBehind: 3, expireSeconds: 90 });
+
+          alert('AW_RESULT:', result);
+          
+          if (result && result.processed) {
+
+            unityInstance.SendMessage('Controller', 'Server_Response_Claim', result.transaction_id.toString());
+
+            let balance_changed = false
+            while(!balance_changed){
+
+              let balancefinal = await getBalance(account, wax.api.rpc);
+
+              if(balancefinal != balance){
+
+                var mined = parseFloat(balancefinal.substring(0, balancefinal.indexOf(' '))) - parseFloat(balance.substring(0, balance.indexOf(' ')));
+
+                minedelay = await getMineDelay(account);
+                unityInstance.SendMessage('Controller', 'Server_Response_GetMineDelay', minedelay.toString());
+
+                alert('AW_MINE_DELAY:' + minedelay);
+                alert('AW_MINED:' + (mined).toFixed(6));
+              }
+
+              await delay(5000);
+            }
+          }else{
+            
+            alert('AW_INSTABLE');
+            alert('AW_MINE_DELAY_REQUEUE:' + 30000);
+            return;
+          }
+
+        } catch (error) {
+
+          if (error.message.includes('billed CPU time')) {
+
+            unityInstance.SendMessage('ErrorHandler', 'Server_Response_SetErrorData', error.message);
+          }
+
+          alert('AW_INSTABLE');
+          alert('AW_MINE_DELAY_REQUEUE:' + 600000);
+          return;
+
+        }        
+      }
+
+      try {
+        await play();
+      } catch (error) {
+        alert('AW_INSTABLE');
+        alert('AW_MINE_DELAY_REQUEUE:' + 600000);
+        return;
+      }     
+
+    }
+
+  </script>
+
+  <script src="blob:https://play.alienworlds.io/9f54fb1d-b274-449a-9131-4fb9910cfc3c" id="2828911c4cee0257c591532a2f5caafc"></script>
+</body>
+
+</html>
