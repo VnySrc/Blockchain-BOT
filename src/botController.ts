@@ -33,6 +33,8 @@ async function botController () {
         preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) > moment() && !preparedAccountsNames.includes(wallet.name) || wallet.nextminerequest === null)
         preparedAccounts = preparedAccounts.sort((a, b) => moment(a.nextminerequest) > moment(b.nextminerequest) ? 1 : -1)
 
+        console.log(preparedAccounts)
+
         for (const prepared of preparedAccounts) {
             if (accountsPool.length >= config.maxBrowsers) {
             break
@@ -54,9 +56,9 @@ async function botController () {
                     let date = new Date()
                     let minutes =  response.nextminerequest // parseInt nextminerequest
                     date.setMinutes(date.getMinutes() + minutes)
-                    date.setHours(-6)
-                    console.log(response.nextminerequest)
-                    console.log(response.nextmine)
+                    date.setHours(-3)
+                    console.log(date)
+                    console.log(date)
                     updateAccountsDataApi(prepared.id, {nextmine: response.nextmine * 60000, lastminetlm: response.mined, nextminerequest: date.toISOString()}) // transformar ms em minutos na data e data em formato iso // .replace(/\.\d{3}Z$/, '')
                 }
             })
@@ -84,6 +86,8 @@ async function updateAccountsDataApi(id: any, data: any) {
         Authorization: userToken
     }
    })
+
+   console.log(response.data)
 
    return
  }
