@@ -37,8 +37,10 @@ async function botController () {
             if (accountsPool.length >= config.maxBrowsers) {
             break
             }   
+
             preparedAccountsNames.push(prepared.name)
             accountsPool.push(prepared)
+
             console.log("Rodando --- " + prepared.name)
 
             runBot(prepared).then((response:any) => {
