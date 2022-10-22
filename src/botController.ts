@@ -33,8 +33,6 @@ async function botController () {
         preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) > moment() && !preparedAccountsNames.includes(wallet.name) || wallet.nextminerequest === null)
         preparedAccounts = preparedAccounts.sort((a, b) => moment(a.nextminerequest) > moment(b.nextminerequest) ? 1 : -1)
 
-        console.log(preparedAccounts)
-
         for (const prepared of preparedAccounts) {
             if (accountsPool.length >= config.maxBrowsers) {
             break
