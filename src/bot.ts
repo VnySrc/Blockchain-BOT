@@ -17,7 +17,7 @@ export const runBot = async (account: walletsTypes) => {
   try {
   
   const browser = await puppeteer.launch({
-    headless: false, //process.env.WORK_MODE == "true" ? true : false,
+    headless: process.env.WORK_MODE == "true" ? true : false,
      args: [
     '--user-agent='+userAgent.toString(),
     'disable-infobars',

@@ -11,7 +11,7 @@ let userToken: string ///!
 let walletsList: walletsTypes[]
 
 const config = {
-    maxBrowsers: 3
+    maxBrowsers: 1
 }
 
 let botActive = true
@@ -30,19 +30,19 @@ async function botController () {
     await getAccountsData()
 
     if (accountsPool.length < config.maxBrowsers) {
-        preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) < moment() && !preparedAccountsNames.includes(wallet.name) || wallet.nextminerequest === null)
+        preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) > moment() && !preparedAccountsNames.includes(wallet.name) || wallet.nextminerequest === null)
         preparedAccounts = preparedAccounts.sort((a, b) => moment(a.nextminerequest) > moment(b.nextminerequest) ? 1 : -1)
 
-        preparedAccounts.forEach(wallet => { // nao adicionar a mesma wallet 2 vezes pelo name
-            preparedAccountsNames.push(wallet.name)
-        })
-    
         for (const prepared of preparedAccounts) {
             if (accountsPool.length >= config.maxBrowsers) {
             break
             }   
 
+            preparedAccountsNames.push(prepared.name)
             accountsPool.push(prepared)
+
+            console.log("Rodando --- " + prepared.name)
+
             runBot(prepared).then((response:any) => {
 
                 accountsPool = accountsPool.filter(e => e.id != prepared.id)
@@ -52,9 +52,12 @@ async function botController () {
                     return
                 }else {
                     let date = new Date()
-                    let minutes =  response.nextminerequest // parseInt nextMineReq
+                    let minutes =  response.nextminerequest // parseInt nextminerequest
                     date.setMinutes(date.getMinutes() + minutes)
-                    updateAccountsDataApi(prepared.id, {nextmine: response.nextMine * 60000, lastminetlm: response.mined, nextminerequest: date.toISOString()}) // transformar ms em minutos na data e data em formato iso // .replace(/\.\d{3}Z$/, '')
+                    date.setHours(-6)
+                    console.log(response.nextminerequest)
+                    console.log(response.nextmine)
+                    updateAccountsDataApi(prepared.id, {nextmine: response.nextmine * 60000, lastminetlm: response.mined, nextminerequest: date.toISOString()}) // transformar ms em minutos na data e data em formato iso // .replace(/\.\d{3}Z$/, '')
                 }
             })
         }
@@ -75,11 +78,13 @@ async function botSwitch (value:boolean) {
 
 
 async function updateAccountsDataApi(id: any, data: any) {
+    console.log(data)
    const response = await axios.put(`http://127.0.0.1:3331/wallets/${id}`, data,{
     headers: {
         Authorization: userToken
     }
    })
+
    return
  }
 

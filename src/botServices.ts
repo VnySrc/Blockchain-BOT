@@ -8,7 +8,7 @@ async function login (page: Page, account: walletsTypes) {
  await page.goto('https://all-access.wax.io/')
  // aguardar a renderização
  await sleep(7)
-
+console.log("1")
  let usuarioLogado = false
 
  try {
@@ -23,6 +23,7 @@ async function login (page: Page, account: walletsTypes) {
   await page.evaluate(`(async () => {
      document.querySelector('#reddit-social-btn').click();
    })()`)
+   console.log("2")
 
    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 120000 })
 
@@ -33,6 +34,7 @@ async function login (page: Page, account: walletsTypes) {
    })()`)
 
    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 120000 })
+   console.log("3")
 
    await page.waitForSelector('body > div.content > div > div.access > form > div > input.fancybutton.newbutton.allow')
    await page.evaluate(`(async () => {
@@ -89,7 +91,7 @@ async function login (page: Page, account: walletsTypes) {
       }
      
       
-      await sleep(15) // claim
+      await sleep(19) // claim
       await page.waitForSelector('#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > button', { timeout: 55000 })
       await page.evaluate(`(async () => {
         document.querySelector('#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > button').click();
@@ -107,6 +109,7 @@ async function login (page: Page, account: walletsTypes) {
           return result
         })
 
+        
       result.mined = parseFloat(mined)
       result.nextmine = parseInt(minutes)
       result.nextminerequest = parseInt(minutes)
@@ -140,3 +143,23 @@ async function login (page: Page, account: walletsTypes) {
 
 
   export {login, openGamePage, sleep}
+
+
+  /*
+  page = (await browser.pages())[0];    
+    page.setRequestInterception(true);    
+    const handler = (request) => {
+        if (request.resourceType() === 'image' || request.resourceType() === 'media' || request.resourceType() === 'stylesheet' || request.resourceType() === 'font') {
+            request.abort();
+        } else {
+            request.continue();
+        }
+    };    
+    page.on("request", handler);    
+
+
+then after the site has loaded, you need to turn off the request handler so that mining will actually work
+
+page.off("request", handler);    
+page.setRequestInterception(false);   
+  */ 
