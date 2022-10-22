@@ -52,9 +52,11 @@ async function botController () {
                     return
                 }else {
                     let date = new Date()
+                    console.log(date)
+                    console.log(date)
                     let minutes =  response.nextminerequest // parseInt nextminerequest
+                    date.setHours(date.getHours() - 4)
                     date.setMinutes(date.getMinutes() + minutes)
-                    date.setHours(-3)
                     console.log(date)
                     console.log(date)
                     updateAccountsDataApi(prepared.id, {nextmine: response.nextmine * 60000, lastminetlm: response.mined, nextminerequest: date.toISOString()}) // transformar ms em minutos na data e data em formato iso // .replace(/\.\d{3}Z$/, '')

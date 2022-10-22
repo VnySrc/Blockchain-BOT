@@ -20,8 +20,6 @@ export const runBot = async (account: walletsTypes) => {
     headless: process.env.WORK_MODE == "true" ? true : false,
      args: [
     '--user-agent='+userAgent.toString(),
-    'disable-infobars',
-      '--disable-infobars',
       '--start-minimized',
        '--disable-web-security',
        '--allow-file-access-from-files',
@@ -29,7 +27,7 @@ export const runBot = async (account: walletsTypes) => {
        `--disable-extensions-except=${extension_path}`,
        '--window-size=320,320',
        '--window-posizition=200,0',
-       '--disable-infobars',
+      // '--disable-infobars',
     //executablePath: chromium_path,
      ]
    })
