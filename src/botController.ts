@@ -55,7 +55,7 @@ async function botController () {
                     console.log(date)
                     console.log(date)
                     let minutes =  response.nextminerequest // parseInt nextminerequest
-                    date.setHours(date.getHours() - 4)
+                    date.setHours(date.getHours() - 3)
                     date.setMinutes(date.getMinutes() + minutes)
                     console.log(date)
                     console.log(date)
