@@ -2,12 +2,9 @@ import puppeteer from "puppeteer-extra"
 import UserAgent from 'user-agents';
 import path from 'path'
 import _fs from 'fs'
-import { walletsTypes } from "./types/wallets"
-import { login, openGamePage } from "./botServices";
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import dotenv from "dotenv"
 import axios from "axios"
-
 dotenv.config()
 
 puppeteer.use(StealthPlugin())
@@ -15,52 +12,43 @@ puppeteer.use(StealthPlugin())
 const extension_path = path.resolve("src/extensions/captcha")
 const userAgent = new UserAgent()
 
-let proxy: string
-let rotation: 0
-
-export const runBot = async (account: walletsTypes) => {
+export const runBot = async (account: any) => {
   try {
-  await getProxy()
 
-  console.log(proxy)
+    const proxy = await axios.get("http://autocryptofarm.ddns.net:8000/api/next-proxy")
+    const proxyData = proxy.data.proxy
+
+    console.log(proxyData)
+    console.log(proxyData)
 
   const browser = await puppeteer.launch({
-    headless: process.env.WORK_MODE == "true" ? true : false,
+    headless: false,
      args: [
-    '--user-agent='+userAgent.toString(),
+    `--user-agent=${userAgent.toString()}`,
+    `--proxy-server=${proxyData}`,
       '--start-minimized',
        '--disable-web-security',
        '--allow-file-access-from-files',
+       '--allow-running-insecure-content',
       `--load-extension=${extension_path}`,
        `--disable-extensions-except=${extension_path}`,
        '--window-size=320,320',
        '--window-posizition=200,0',
       '--disable-infobars',
-   // `--proxy-server=${proxy}`
     //executablePath: chromium_path,
      ]
    })
 
+   console.log("proxyData")
+
     const page = await browser.newPage()
-    await login(page, account)
-    let response = await openGamePage(page, account)
-    await browser.close()
-    return response
+   await page.goto("https://meuip.com.br/", {timeout: 30000})
 
    }catch (err) {
     console.log(err)
    }
 }
-
-async function getProxy () {
-  if (rotation < 3 && proxy) {
-    return
-  }else {
-    const response=  await axios.get("http://autocryptofarm.ddns.net:8000/api/next-proxy")
-    proxy =  response.data.proxy
-    rotation = 0
-  }
-}
+runBot("sadsd")
 
 
 

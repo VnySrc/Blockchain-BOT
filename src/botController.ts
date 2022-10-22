@@ -30,8 +30,8 @@ async function botController () {
     await getAccountsData()
 
     if (accountsPool.length < config.maxBrowsers) {
-        preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) > moment() && !preparedAccountsNames.includes(wallet.name) || wallet.nextminerequest === null)
-        preparedAccounts = preparedAccounts.sort((a, b) => moment(a.nextminerequest) > moment(b.nextminerequest) ? 1 : -1)
+        preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) < moment() && !preparedAccountsNames.includes(wallet.name) || wallet.nextminerequest === null)
+        preparedAccounts = preparedAccounts.sort((a, b) => moment(a.nextminerequest) < moment(b.nextminerequest) ? 1 : -1)
 
         for (const prepared of preparedAccounts) {
             if (accountsPool.length >= config.maxBrowsers) {
@@ -64,8 +64,11 @@ async function botController () {
             })
         }
     }
-    setTimeout(botController, 20000)
+    setTimeout(botController, 1000)
 }
+// yyy
+//y
+//y
 
 async function botSwitch (value:boolean) {
     if (!value) {

@@ -5,7 +5,7 @@ import { walletsTypes } from "./types/wallets"
 async function login (page: Page, account: walletsTypes) {
   try {
  // abrir a página do WAX
- await page.goto('https://all-access.wax.io/')
+ await page.goto('https://all-access.wax.io/', {timeout: 15000})
  // aguardar a renderização
  await sleep(7)
 console.log("1")
@@ -64,7 +64,7 @@ console.log("1")
     try {
       await sleep(2)
 
-      await page.goto("https://play.alienworlds.io/")
+      await page.goto("https://play.alienworlds.io/", {timeout: 15000})
 
       await sleep(5)
 
