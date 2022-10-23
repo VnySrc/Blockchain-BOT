@@ -1,14 +1,14 @@
 import path from 'path'
 import { Browser, Page } from "puppeteer"
 import { walletsTypes } from "./types/wallets"
+import _fs from "fs"
 
 async function login (page: Page, account: walletsTypes) {
   try {
  // abrir a página do WAX
- await page.goto('https://all-access.wax.io/', {timeout: 15000})
+ await page.goto('https://all-access.wax.io/', {timeout: 35000, waitUntil: "domcontentloaded"})
  // aguardar a renderização
- await sleep(7)
-console.log("1")
+ await sleep(13)
  let usuarioLogado = false
 
  try {
@@ -18,12 +18,14 @@ console.log("1")
    // não encontrou o botão do Reddit assumit que o usuário está logado
    usuarioLogado = true
  }
+
+ console.log(usuarioLogado)
+
  if (!usuarioLogado) {
 
   await page.evaluate(`(async () => {
      document.querySelector('#reddit-social-btn').click();
    })()`)
-   console.log("2")
 
    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 120000 })
 
@@ -43,7 +45,7 @@ console.log("1")
 
    //await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 120000 })
 
-   //await saveCookieSession(page, account.user)
+   await saveCookieSession(page, account.user)
  }
 
  return Promise.resolve()
@@ -64,7 +66,7 @@ console.log("1")
     try {
       await sleep(2)
 
-      await page.goto("https://play.alienworlds.io/", {timeout: 15000})
+      await page.goto("https://play.alienworlds.io/", {timeout: 35000, waitUntil: "domcontentloaded"})
 
       await sleep(5)
 
@@ -123,8 +125,6 @@ console.log("1")
   //result.nextMineRequest = document.querySelector("s")
 
 
-
-
   async function sleep (sec: number) {
     return new Promise<void>((resolve, reject) => {
       setTimeout(function () {
@@ -138,6 +138,39 @@ console.log("1")
         return reject('TIMEOUT')
       }, amount)
     })
+  }
+
+  const saveCookieSession = async (page: Page, id: string) => {
+    const p = path.resolve("cookies")
+
+    console.log(p)
+  
+    if (!_fs.existsSync(p)) {
+      _fs.mkdirSync(p)
+    }
+  
+    const filePath = p + `\${id}.json`
+  
+    console.log(filePath)
+
+    const cookies = await page.cookies()
+    await _fs.writeFileSync(filePath, JSON.stringify(cookies, null, 2))
+  }
+  
+  const setCookieSession = async (page: Page, id: string) => {
+    const filePath = path.join(path.resolve(`cookies/${id}.json`))
+  
+    if (!_fs.existsSync(filePath)) {
+      return Promise.resolve()
+    }
+  
+    const cookiesString = _fs.readFileSync(filePath, 'utf8')
+  
+    if (cookiesString) {
+      const cookies = JSON.parse(cookiesString)
+  
+      await page.setCookie(...cookies)
+    }
   }
 
 

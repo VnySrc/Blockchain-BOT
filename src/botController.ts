@@ -27,11 +27,21 @@ async function botController () {
         return
     }
  
+
     await getAccountsData()
+
 
     if (accountsPool.length < config.maxBrowsers) {
         preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) < moment() && !preparedAccountsNames.includes(wallet.name) || wallet.nextminerequest === null)
         preparedAccounts = preparedAccounts.sort((a, b) => moment(a.nextminerequest) < moment(b.nextminerequest) ? 1 : -1)
+
+        console.log(preparedAccounts)
+
+        preparedAccounts.forEach(wallet => {
+            console.log(wallet.name)
+            console.log(moment(wallet.nextminerequest) < moment())
+            console.log(moment(wallet.nextminerequest) + " --- " + moment())
+        });
 
         for (const prepared of preparedAccounts) {
             if (accountsPool.length >= config.maxBrowsers) {
@@ -55,7 +65,7 @@ async function botController () {
                     console.log(date)
                     console.log(date)
                     let minutes =  response.nextminerequest // parseInt nextminerequest
-                    date.setHours(date.getHours() - 3)
+                 //   date.setHours(date.getHours() - 3)
                     date.setMinutes(date.getMinutes() + minutes)
                     console.log(date)
                     console.log(date)
@@ -66,8 +76,6 @@ async function botController () {
     }
     setTimeout(botController, 1000)
 }
-// yyy
-//y
 //y
 
 async function botSwitch (value:boolean) {
@@ -101,13 +109,13 @@ async function getCredntials() {
     try {
         const response = await axios.post("http://127.0.0.1:3331/login", {
             email: "teste@gmail.com",
-            password: "17"
+            password: "111"
         })
         userToken = response.data.token 
         console.log(userToken)
         return
     }catch (err) {
-
+        console.log(err)
     }
 }
 
