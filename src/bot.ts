@@ -20,9 +20,9 @@ let rotation: 0
 
 export const runBot = async (account: walletsTypes) => {
   try {
-  await getProxy()
+ // await getProxy()
 
-  console.log(proxy)
+//  console.log(proxy)
 
   const browser = await puppeteer.launch({
     headless: process.env.WORK_MODE == "true" ? true : false,

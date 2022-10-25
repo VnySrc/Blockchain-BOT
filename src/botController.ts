@@ -27,9 +27,7 @@ async function botController () {
         return
     }
  
-
     await getAccountsData()
-
 
     if (accountsPool.length < config.maxBrowsers) {
         preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) < moment() && !preparedAccountsNames.includes(wallet.name) || wallet.nextminerequest === null)
@@ -65,7 +63,7 @@ async function botController () {
                     console.log(date)
                     console.log(date)
                     let minutes =  response.nextminerequest // parseInt nextminerequest
-                 //   date.setHours(date.getHours() - 3)
+                    // date.setHours(date.getHours() - 3)
                     date.setMinutes(date.getMinutes() + minutes)
                     console.log(date)
                     console.log(date)
@@ -74,7 +72,7 @@ async function botController () {
             })
         }
     }
-    setTimeout(botController, 1000)
+    setTimeout(botController, 3000)
 }
 //y
 

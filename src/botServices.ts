@@ -6,6 +6,9 @@ import _fs from "fs"
 async function login (page: Page, account: walletsTypes) {
   try {
  // abrir a página do WAX
+
+ await setCookieSession(page, account.user)
+
  await page.goto('https://all-access.wax.io/', {timeout: 35000, waitUntil: "domcontentloaded"})
  // aguardar a renderização
  await sleep(13)
@@ -18,8 +21,6 @@ async function login (page: Page, account: walletsTypes) {
    // não encontrou o botão do Reddit assumit que o usuário está logado
    usuarioLogado = true
  }
-
- console.log(usuarioLogado)
 
  if (!usuarioLogado) {
 
@@ -43,9 +44,9 @@ async function login (page: Page, account: walletsTypes) {
      document.querySelector('body > div.content > div > div.access > form > div > input.fancybutton.newbutton.allow').click();
    })()`)
 
-   //await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 120000 })
+   await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 120000 })
 
-   await saveCookieSession(page, account.user)
+  await saveCookieSession(page, account.user)
  }
 
  return Promise.resolve()
@@ -149,7 +150,7 @@ async function login (page: Page, account: walletsTypes) {
       _fs.mkdirSync(p)
     }
   
-    const filePath = p + `\${id}.json`
+    const filePath = path.resolve("cookies", `${id}.json`)
   
     console.log(filePath)
 
@@ -158,7 +159,7 @@ async function login (page: Page, account: walletsTypes) {
   }
   
   const setCookieSession = async (page: Page, id: string) => {
-    const filePath = path.join(path.resolve(`cookies/${id}.json`))
+    const filePath = path.resolve("cookies", `${id}.json`)
   
     if (!_fs.existsSync(filePath)) {
       return Promise.resolve()
@@ -171,12 +172,13 @@ async function login (page: Page, account: walletsTypes) {
   
       await page.setCookie(...cookies)
     }
+
+    console.log(page.cookies)
   }
 
 
 
   export {login, openGamePage, sleep}
-
 
   /*
   page = (await browser.pages())[0];    
