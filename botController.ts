@@ -9,18 +9,16 @@ import axios from "axios"
 import dotenv from "dotenv"
 
 dotenv.config()
-
-console.log(process.argv[2])
     
 var userToken: string ///!
-var walletsList: walletsTypes[]
+var walletsList: [walletsTypes[], walletsTypes[]]
 
 var botActive = true
 var accountsPool: any[] = []
 var preparedAccounts: walletsTypes[] = []
 var preparedAccountsNames: string[] = []
 
-botSwitch(true)//!
+// botSwitch(true)//!
 
 async function botController () {
     if (!botActive) {
@@ -28,12 +26,22 @@ async function botController () {
         return
     }
  
-    await getAccountsData()
-
     let maxBrowsers: number = parseInt(process.env.MAX_BROWSERS as string)
+    let hourNow = await getHourNow()
+    let walletsListToUse: walletsTypes[]
+
+    if (typeof hourNow !== "number") {
+        hourNow = parseInt(hourNow)
+    }
+
+    if (hourNow <= 12) {
+        walletsListToUse = walletsList[0]
+    }else {
+        walletsListToUse = walletsList[1]
+    }
 
     if (accountsPool.length < maxBrowsers) {
-        preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) < moment() && !preparedAccountsNames.includes(wallet.name) && wallet.cpu < 95 || wallet.nextminerequest === null && wallet.cpu < 95)
+        preparedAccounts = walletsListToUse.filter(wallet =>moment(wallet.nextminerequest) < moment() && !preparedAccountsNames.includes(wallet.name) && wallet.cpu < 95 || wallet.nextminerequest === null && wallet.cpu < 95)
         preparedAccounts = preparedAccounts.sort((a, b) => moment(a.nextminerequest) < moment(b.nextminerequest) ? 1 : -1)
 
         for (const prepared of preparedAccounts) {
@@ -65,23 +73,22 @@ async function botController () {
     }
     setTimeout(botController, 3000)
 }
-//y
 
 async function botSwitch (value:boolean) {
     if (!value) {
         botActive = false
         return
     }else {
-        await getCredntials() //!
+       //* await getCredntials() //!
+        await getAccountsData()
         botActive = true
         botController()
     }
 }
 
-
 async function updateAccountsDataApi(id: any, data: any) {
     console.log(data)
-   const response = await axios.put(`http://127.0.0.1:3331/wallets/${id}`, data,{
+   const response = await axios.put(`${process.env.API_URL as string}/${id}`, data,{
     headers: {
         Authorization: userToken
     }
@@ -92,48 +99,37 @@ async function updateAccountsDataApi(id: any, data: any) {
    return
  }
 
-
-
-async function getCredntials() {
-    try {
-        const response = await axios.post("http://127.0.0.1:3331/login", {
-            email: "teste@gmail.com",
-            password: "111"
-        })
-        userToken = response.data.token 
-        console.log(userToken)
-        return
-    }catch (err) {
-        console.log(err)
-    }
-}
-
 async function getAccountsData () {
     try {
-        const response2 = await axios.get("http://127.0.0.1:3331/accountwallets", {
+        const response2 = await axios.get(process.env.API_URL as string, {
             headers: {
-                Authorization: userToken //! process.env.USER_JWT_TOKEN
+                Authorization:  process.env.USER_TOKEN as string //*userToken //! process.env.USER_JWT_TOKEN
             }
         })
-        walletsList = response2.data.wallets
+        const list1: walletsTypes[] = response2.data.wallets.slice(0,response2.data.wallets.length / 2)
+        const list2: walletsTypes[]= response2.data.wallets.slice(response2.data.wallets.length / 2)
+        walletsList = [list1, list2]
         return
     }catch (err) {
         console.log(err)
     }
 }
 
-
-
-
-
-
-
-
-/*
-function updateAccountsData(accountName: string, data: any) {
-   let index = walletsList.findIndex(e => e.name === accountName)
-   walletsList[index].nextMine = data.nextMine
-   walletsList[index].lastMineTlm= data.lastMineTlm
-   walletsList[index].nextminerequest = data.nextminerequest
+async function getHourNow () {
+    const response = await axios.get("http://worldtimeapi.org/api/timezone/America/Sao_Paulo")
+    return response.data.datetime.split("T")[1].split(":")[0]
 }
-*/
+
+// async function getCredntials() {
+//     try {
+//         const response = await axios.post(process.env.API_URL as string, {
+//             email: "teste@gmail.com",
+//             password: "111"
+//         })
+//         userToken = response.data.token 
+//         console.log(userToken)
+//         return
+//     }catch (err) {
+//         console.log(err)
+//     }
+// }
