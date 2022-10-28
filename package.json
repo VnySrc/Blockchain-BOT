@@ -1,12 +1,21 @@
 {
   "name": "new-bot",
   "version": "1.0.0",
-  "main": "bot.js",
+  "main": "./dist/botController.js",
   "license": "MIT",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/botController.ts",
-    "start": "node src/botController.ts"
+    "dev": "nodemon botController.ts",
+    "start": "node dist/botController.js"
+  },
+  "bin": {
+    "execute": "dist/botController.js"
+  },
+  "pkg": {
+    "scripts": "dist/**/*.js",
+    "assets": "dist/*.node",
+    "targets": ["node16-win-x64"],
+    "outputPath": "build"
   },
   "keywords": [],
   "author": "",

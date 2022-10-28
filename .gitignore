@@ -2,3 +2,6 @@ node_modules
 .node_modules
 cookies
 cookies/vnyWaxy7.json
+
+dist
+botController.exe

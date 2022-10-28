@@ -1,23 +1,24 @@
-import { runBot } from "./bot"
-import { sleep } from "./botServices"
-import { walletsTypes } from "./types/wallets"
+#!/usr/bin/env node
+
+
+import { runBot } from "./src/bot"
+import { sleep } from "./src/botServices"
+import { walletsTypes } from "./src/types/wallets"
 import moment from "moment"
 import axios from "axios"
 import dotenv from "dotenv"
 
 dotenv.config()
 
-let userToken: string ///!
-let walletsList: walletsTypes[]
+console.log(process.argv[2])
+    
+var userToken: string ///!
+var walletsList: walletsTypes[]
 
-const config = {
-    maxBrowsers: 1
-}
-
-let botActive = true
-let accountsPool: any[] = []
-let preparedAccounts: walletsTypes[] = []
-let preparedAccountsNames: string[] = []
+var botActive = true
+var accountsPool: any[] = []
+var preparedAccounts: walletsTypes[] = []
+var preparedAccountsNames: string[] = []
 
 botSwitch(true)//!
 
@@ -29,27 +30,21 @@ async function botController () {
  
     await getAccountsData()
 
-    if (accountsPool.length < config.maxBrowsers) {
-        preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) < moment() && !preparedAccountsNames.includes(wallet.name) || wallet.nextminerequest === null)
+    let maxBrowsers: number = parseInt(process.env.MAX_BROWSERS as string)
+
+    if (accountsPool.length < maxBrowsers) {
+        preparedAccounts = walletsList.filter(wallet =>moment(wallet.nextminerequest) < moment() && !preparedAccountsNames.includes(wallet.name) && wallet.cpu < 95 || wallet.nextminerequest === null && wallet.cpu < 95)
         preparedAccounts = preparedAccounts.sort((a, b) => moment(a.nextminerequest) < moment(b.nextminerequest) ? 1 : -1)
 
-        console.log(preparedAccounts)
-
-        preparedAccounts.forEach(wallet => {
-            console.log(wallet.name)
-            console.log(moment(wallet.nextminerequest) < moment())
-            console.log(moment(wallet.nextminerequest) + " --- " + moment())
-        });
-
         for (const prepared of preparedAccounts) {
-            if (accountsPool.length >= config.maxBrowsers) {
+            if (accountsPool.length >= maxBrowsers) {
             break
             }   
 
             preparedAccountsNames.push(prepared.name)
             accountsPool.push(prepared)
 
-            console.log("Rodando --- " + prepared.name)
+            console.log(`Rodando conta --- ${prepared.name}`)
 
             runBot(prepared).then((response:any) => {
 
@@ -60,13 +55,9 @@ async function botController () {
                     return
                 }else {
                     let date = new Date()
-                    console.log(date)
-                    console.log(date)
                     let minutes =  response.nextminerequest // parseInt nextminerequest
                     // date.setHours(date.getHours() - 3)
                     date.setMinutes(date.getMinutes() + minutes)
-                    console.log(date)
-                    console.log(date)
                     updateAccountsDataApi(prepared.id, {nextmine: response.nextmine * 60000, lastminetlm: response.mined, nextminerequest: date.toISOString()}) // transformar ms em minutos na data e data em formato iso // .replace(/\.\d{3}Z$/, '')
                 }
             })

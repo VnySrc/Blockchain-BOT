@@ -5,13 +5,15 @@ import _fs from "fs"
 
 async function login (page: Page, account: walletsTypes) {
   try {
+    
+  let delay = parseFloat(process.env.DELAY_QUANTITY as string)
  // abrir a página do WAX
 
  await setCookieSession(page, account.user)
 
  await page.goto('https://all-access.wax.io/', {timeout: 35000, waitUntil: "domcontentloaded"})
  // aguardar a renderização
- await sleep(13)
+ await sleep(5 * delay)
  let usuarioLogado = false
 
  try {
@@ -58,6 +60,8 @@ async function login (page: Page, account: walletsTypes) {
 
 
   const openGamePage = async (page: Page, account: walletsTypes) => { // , mode, PAccount
+    let delay = parseFloat(process.env.DELAY_QUANTITY as string)
+    
     let result = {
       mined: 0,
       nextmine: 0,
@@ -65,18 +69,18 @@ async function login (page: Page, account: walletsTypes) {
     }
 
     try {
-      await sleep(2)
+      await sleep(1 * delay)
 
       await page.goto("https://play.alienworlds.io/", {timeout: 35000, waitUntil: "domcontentloaded"})
 
-      await sleep(5)
+      await sleep(5 * delay)
 
       await page.waitForSelector('#root > div.css-8mefo3 > div > div.css-yfg7h4 > button', { timeout: 5000 }) // login
       await page.evaluate(`(async () => {
         document.querySelector('#root > div.css-8mefo3 > div > div.css-yfg7h4 > button').click();
       })()`)
 
-      await sleep(5) // mine
+      await sleep(5 * delay) // mine
       try {
         await page.waitForSelector('#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > button', { timeout: 15000 })
         await page.evaluate(`(async () => {
@@ -94,7 +98,7 @@ async function login (page: Page, account: walletsTypes) {
       }
      
       
-      await sleep(19) // claim
+      await sleep(11 * delay) // claim
       await page.waitForSelector('#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > button', { timeout: 55000 })
       await page.evaluate(`(async () => {
         document.querySelector('#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > button').click();
@@ -105,7 +109,7 @@ async function login (page: Page, account: walletsTypes) {
           const result = document.querySelector("#root > div:nth-child(2) > div > div > div.go318386747")?.innerHTML.split(" ")[1] as string
           return result
         })
-        await sleep(2)
+        await sleep(2 * delay)
         await page.waitForSelector('#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > p.chakra-text.css-ov2nki > span:nth-child(2)', { timeout: 55000 })
         const minutes = await page.evaluate(() => {
           const result = document.querySelector("#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > p.chakra-text.css-ov2nki > span:nth-child(2)")?.innerHTML as string
@@ -142,7 +146,7 @@ async function login (page: Page, account: walletsTypes) {
   }
 
   const saveCookieSession = async (page: Page, id: string) => {
-    const p = path.resolve("cookies")
+    const p = path.resolve("src", "cookies")
 
     console.log(p)
   
@@ -159,7 +163,7 @@ async function login (page: Page, account: walletsTypes) {
   }
   
   const setCookieSession = async (page: Page, id: string) => {
-    const filePath = path.resolve("cookies", `${id}.json`)
+    const filePath = path.resolve("src", "cookies", `${id}.json`)
   
     if (!_fs.existsSync(filePath)) {
       return Promise.resolve()
