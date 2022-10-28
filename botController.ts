@@ -18,7 +18,6 @@ var accountsPool: any[] = []
 var preparedAccounts: walletsTypes[] = []
 var preparedAccountsNames: string[] = []
 
-// botSwitch(true)//!
 
 async function botController () {
     if (!botActive) {
@@ -119,17 +118,3 @@ async function getHourNow () {
     const response = await axios.get("http://worldtimeapi.org/api/timezone/America/Sao_Paulo")
     return response.data.datetime.split("T")[1].split(":")[0]
 }
-
-// async function getCredntials() {
-//     try {
-//         const response = await axios.post(process.env.API_URL as string, {
-//             email: "teste@gmail.com",
-//             password: "111"
-//         })
-//         userToken = response.data.token 
-//         console.log(userToken)
-//         return
-//     }catch (err) {
-//         console.log(err)
-//     }
-// }
