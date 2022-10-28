@@ -18,7 +18,7 @@ var accountsPool: any[] = []
 var preparedAccounts: walletsTypes[] = []
 var preparedAccountsNames: string[] = []
 
-// botSwitch(true)//!
+botSwitch(true)//!
 
 async function botController () {
     if (!botActive) {
@@ -101,13 +101,18 @@ async function updateAccountsDataApi(id: any, data: any) {
 
 async function getAccountsData () {
     try {
-        const response2 = await axios.get(process.env.API_URL as string, {
+        const response2 = await axios.get(`${process.env.API_URL as string}/accountwallets` , {
             headers: {
                 Authorization:  process.env.USER_TOKEN as string //*userToken //! process.env.USER_JWT_TOKEN
             }
         })
-        const list1: walletsTypes[] = response2.data.wallets.slice(0,response2.data.wallets.length / 2)
+        const list1: walletsTypes[] = response2.data.wallets.slice(0, response2.data.wallets.length / 2)
         const list2: walletsTypes[]= response2.data.wallets.slice(response2.data.wallets.length / 2)
+
+        console.log(list1)
+        console.log("list1")
+        console.log(list2)
+
         walletsList = [list1, list2]
         return
     }catch (err) {
@@ -119,3 +124,17 @@ async function getHourNow () {
     const response = await axios.get("http://worldtimeapi.org/api/timezone/America/Sao_Paulo")
     return response.data.datetime.split("T")[1].split(":")[0]
 }
+
+// async function getCredntials() {
+//     try {
+//         const response = await axios.post(process.env.API_URL as string, {
+//             email: "teste@gmail.com",
+//             password: "111"
+//         })
+//         userToken = response.data.token 
+//         console.log(userToken)
+//         return
+//     }catch (err) {
+//         console.log(err)
+//     }
+// }
