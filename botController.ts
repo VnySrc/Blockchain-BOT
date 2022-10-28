@@ -18,6 +18,7 @@ var accountsPool: any[] = []
 var preparedAccounts: walletsTypes[] = []
 var preparedAccountsNames: string[] = []
 
+// botSwitch(true)//!
 
 async function botController () {
     if (!botActive) {
