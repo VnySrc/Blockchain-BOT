@@ -18,8 +18,6 @@ var accountsPool: any[] = []
 var preparedAccounts: walletsTypes[] = []
 var preparedAccountsNames: string[] = []
 
-console.log()
-
 process.env.USER_TOKEN = `Bearer ${process.argv[2] ? process.argv[2] : process.env.USER_TOKEN}`
 process.env.WORK_MODE = process.argv[3] ? process.argv[3] : process.env.WORK_MODE
 process.env.MAX_BROWSERS = process.argv[4] ? process.argv[4] : process.env.MAX_BROWSERS
