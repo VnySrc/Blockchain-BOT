@@ -7,6 +7,8 @@ import { login, openGamePage } from "./botServices";
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import dotenv from "dotenv"
 import axios from "axios"
+import { executablePath } from 'puppeteer'
+
 
 dotenv.config()
 
@@ -20,9 +22,9 @@ let rotation: 0
 
 export const runBot = async (account: walletsTypes) => {
   try {
- // await getProxy()
 
-//  console.log(proxy)
+//* await getProxy()
+//* console.log(proxy)
 
   const browser = await puppeteer.launch({
     headless: process.env.WORK_MODE == "true" ? true : false,
@@ -36,9 +38,9 @@ export const runBot = async (account: walletsTypes) => {
        '--window-size=320,320',
        '--window-posizition=200,0',
       '--disable-infobars',
-   // `--proxy-server=${proxy}`
-    //executablePath: chromium_path,
-     ]
+     //* `--proxy-server=${proxy}`
+     ],
+     executablePath: executablePath()
    })
 
     const page = await browser.newPage()
@@ -54,9 +56,10 @@ export const runBot = async (account: walletsTypes) => {
 
 async function getProxy () {
   if (rotation < 3 && proxy) {
+    rotation++
     return
   }else {
-    const response=  await axios.get("http://autocryptofarm.ddns.net:8000/api/next-proxy")
+    const response=  await axios.get(process.env.PROXY_URL as string)
     proxy =  response.data.proxy
     rotation = 0
   }

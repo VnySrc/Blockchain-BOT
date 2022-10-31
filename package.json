@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon botController.ts",
-    "start": "tsc && node dist/botController.js"
+    "start": "tsc && node dist/botController.js",
+    "build": "tsc && cd dist && nexe -t windows-x64-14.15.1 -i botController.js -r ."
   },
   "bin": {
     "execute": "dist/botController.js"
@@ -14,7 +15,9 @@
   "pkg": {
     "scripts": "dist/**/*.js",
     "assets": "dist/*.node",
-    "targets": ["node16-win-x64"],
+    "targets": [
+      "node16-win-x64"
+    ],
     "outputPath": "build"
   },
   "keywords": [],

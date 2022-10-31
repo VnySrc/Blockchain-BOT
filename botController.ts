@@ -18,6 +18,20 @@ var accountsPool: any[] = []
 var preparedAccounts: walletsTypes[] = []
 var preparedAccountsNames: string[] = []
 
+console.log()
+
+process.env.USER_TOKEN = `Bearer ${process.argv[2] ? process.argv[2] : process.env.USER_TOKEN}`
+process.env.WORK_MODE = process.argv[3] ? process.argv[3] : process.env.WORK_MODE
+process.env.MAX_BROWSERS = process.argv[4] ? process.argv[4] : process.env.MAX_BROWSERS
+process.env.DELAY_QUANTITY = process.argv[5] ? process.argv[5] : process.env.DELAY_QUANTITY
+
+console.log(
+    process.env.USER_TOKEN,
+    process.env.WORK_MODE,
+    process.env.MAX_BROWSERS,
+    process.env.DELAY_QUANTITY,
+)
+
 botSwitch(true)//!
 
 async function botController () {
@@ -25,6 +39,8 @@ async function botController () {
         await sleep(5)
         return
     }
+
+    await getAccountsData()
  
     let maxBrowsers: number = parseInt(process.env.MAX_BROWSERS as string)
     let hourNow = await getHourNow()
@@ -54,6 +70,7 @@ async function botController () {
 
             console.log(`Rodando conta --- ${prepared.name}`)
 
+            
             runBot(prepared).then((response:any) => {
 
                 accountsPool = accountsPool.filter(e => e.id != prepared.id)
@@ -80,7 +97,7 @@ async function botSwitch (value:boolean) {
         return
     }else {
        //* await getCredntials() //!
-        await getAccountsData()
+       //* await getAccountsData()
         botActive = true
         botController()
     }
@@ -88,9 +105,9 @@ async function botSwitch (value:boolean) {
 
 async function updateAccountsDataApi(id: any, data: any) {
     console.log(data)
-   const response = await axios.put(`${process.env.API_URL as string}/${id}`, data,{
+   const response = await axios.put(`${process.env.API_URL as string}/wallets/${id}`, data,{
     headers: {
-        Authorization: userToken
+        Authorization:  process.env.USER_TOKEN as string //*userToken //! process.env.USER_JWT_TOKEN
     }
    })
 
@@ -108,10 +125,6 @@ async function getAccountsData () {
         })
         const list1: walletsTypes[] = response2.data.wallets.slice(0, response2.data.wallets.length / 2)
         const list2: walletsTypes[]= response2.data.wallets.slice(response2.data.wallets.length / 2)
-
-        console.log(list1)
-        console.log("list1")
-        console.log(list2)
 
         walletsList = [list1, list2]
         return

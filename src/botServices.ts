@@ -39,7 +39,6 @@ async function login (page: Page, account: walletsTypes) {
    })()`)
 
    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 120000 })
-   console.log("3")
 
    await page.waitForSelector('body > div.content > div > div.access > form > div > input.fancybutton.newbutton.allow')
    await page.evaluate(`(async () => {
@@ -104,7 +103,19 @@ async function login (page: Page, account: walletsTypes) {
         document.querySelector('#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > button').click();
       })()`)
 
-        await page.waitForSelector('#root > div:nth-child(2) > div > div > div.go318386747', { timeout: 55000 })
+      try {
+        await page.waitForSelector('#root > div:nth-child(2) > div > div > div.go318386747', { timeout: 20000 }) // balãozinho
+      }catch (err) {
+        await page.waitForSelector('#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > p.chakra-text.css-ov2nki > span:nth-child(2)', { timeout: 150000 })
+        const minutes = await page.evaluate(() => {
+        const result = document.querySelector("#root > div.css-r4izcz > div.css-xq9dq3 > div > div.css-1434km6 > div:nth-child(4) > div > div.css-2s09f0 > p.chakra-text.css-ov2nki > span:nth-child(2)")?.innerHTML as string
+        return result
+      })
+      result.nextmine = parseInt(minutes) + 1
+      result.nextminerequest = parseInt(minutes) + 1
+      return result
+      }
+      
         const mined = await page.evaluate(() => {
           const result = document.querySelector("#root > div:nth-child(2) > div > div > div.go318386747")?.innerHTML.split(" ")[1] as string
           return result
@@ -154,7 +165,7 @@ async function login (page: Page, account: walletsTypes) {
       _fs.mkdirSync(p)
     }
   
-    const filePath = path.resolve("cookies", `${id}.json`)
+    const filePath = path.resolve("src", "cookies", `${id}.json`)
   
     console.log(filePath)
 
